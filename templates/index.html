@@ -3,7 +3,7 @@
   <head>
     <title>New Document</title>
     <meta charset="UTF-8">
-    <!-- Meta viewport đảm bảo trang hiển thị đúng trên mọi thiết bị và ngăn phóng to/thu nhỏ -->
+    <!-- Meta viewport để đảm bảo trang web hiển thị đúng trên mọi thiết bị và ngăn phóng to/thu nhỏ -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="Generator" content="EditPlus">
     <meta name="Author" content="">
@@ -22,7 +22,7 @@
         width: 100%;
         height: 100%;
       }
-      /* Nút điều khiển ở góc dưới bên phải, không có chữ */
+      /* Nút ở góc dưới bên phải, không ghi gì */
       #toggleButton {
         position: fixed;
         bottom: 10px;
@@ -34,6 +34,7 @@
         border-radius: 50%;
         z-index: 10;
       }
+      /* Ẩn outline khi nhấn nút */
       #toggleButton:focus {
         outline: none;
       }
@@ -48,39 +49,35 @@
        */
       var settings = {
         particles: {
-          length:   500,     // số lượng particle tối đa
-          duration: 2,       // thời gian tồn tại của particle (giây)
-          velocity: 100,     // vận tốc particle (pixels/giây)
-          effect:   -0.75,   // hệ số hiệu ứng
-          size:     30,      // kích thước particle (không dùng cho việc scale trái tim cố định)
+          length:   500, // maximum amount of particles
+          duration:   2, // particle duration in sec
+          velocity: 100, // particle velocity in pixels/sec
+          effect: -0.75, // play with this for a nice effect
+          size:      30, // particle size in pixels
         },
-        heartSize: 200       // kích thước trái tim cố định (px)
       };
-
-      // Hệ số scale để chuyển đổi kết quả từ hàm pointOnHeart (ban đầu tính theo thang 350)
-      var heartScaleFactor = settings.heartSize / 350;
 
       /*
        * RequestAnimationFrame polyfill by Erik Möller
        */
       (function(){
-        var b = 0;
-        var c = ["ms", "moz", "webkit", "o"];
-        for(var a = 0; a < c.length && !window.requestAnimationFrame; ++a){
-          window.requestAnimationFrame = window[c[a] + "RequestAnimationFrame"];
-          window.cancelAnimationFrame = window[c[a] + "CancelAnimationFrame"] || window[c[a] + "CancelRequestAnimationFrame"];
+        var b=0;
+        var c=["ms","moz","webkit","o"];
+        for(var a=0;a<c.length&&!window.requestAnimationFrame;++a){
+          window.requestAnimationFrame=window[c[a]+"RequestAnimationFrame"];
+          window.cancelAnimationFrame=window[c[a]+"CancelAnimationFrame"]||window[c[a]+"CancelRequestAnimationFrame"];
         }
-        if (!window.requestAnimationFrame){
-          window.requestAnimationFrame = function(h, e){
-            var d = new Date().getTime();
-            var f = Math.max(0, 16 - (d - b));
-            var g = window.setTimeout(function(){ h(d + f); }, f);
-            b = d + f;
+        if(!window.requestAnimationFrame){
+          window.requestAnimationFrame=function(h,e){
+            var d=new Date().getTime();
+            var f=Math.max(0,16-(d-b));
+            var g=window.setTimeout(function(){h(d+f)},f);
+            b=d+f;
             return g;
           };
         }
-        if (!window.cancelAnimationFrame){
-          window.cancelAnimationFrame = function(d){ clearTimeout(d); };
+        if(!window.cancelAnimationFrame){
+          window.cancelAnimationFrame=function(d){clearTimeout(d)};
         }
       }());
 
@@ -143,7 +140,7 @@
             return (--t) * t * t + 1;
           }
           var size = image.width * ease(this.age / settings.particles.duration);
-          // Nhân alpha của từng particle với visibility để tạo hiệu ứng fade in/out
+          // Nhân alpha của từng particle với biến visibility để tạo hiệu ứng fade in/out
           context.globalAlpha = (1 - this.age / settings.particles.duration) * visibility;
           context.drawImage(image, this.position.x - size / 2, this.position.y - size / 2, size, size);
         };
@@ -156,16 +153,18 @@
       var ParticlePool = (function() {
         var particles,
             firstActive = 0,
-            firstFree = 0,
-            duration = settings.particles.duration;
+            firstFree   = 0,
+            duration    = settings.particles.duration;
        
         function ParticlePool(length) {
+          // create and populate particle pool
           particles = new Array(length);
           for (var i = 0; i < particles.length; i++)
             particles[i] = new Particle();
         }
         ParticlePool.prototype.add = function(x, y, dx, dy) {
           particles[firstFree].initialize(x, y, dx, dy);
+          // handle circular queue
           firstFree++;
           if (firstFree == particles.length) firstFree = 0;
           if (firstActive == firstFree) firstActive++;
@@ -173,6 +172,7 @@
         };
         ParticlePool.prototype.update = function(deltaTime) {
           var i;
+          // update active particles
           if (firstActive < firstFree) {
             for (i = firstActive; i < firstFree; i++)
               particles[i].update(deltaTime);
@@ -183,6 +183,7 @@
             for (i = 0; i < firstFree; i++)
               particles[i].update(deltaTime);
           }
+          // remove inactive particles
           while (particles[firstActive].age >= duration && firstActive != firstFree) {
             firstActive++;
             if (firstActive == particles.length) firstActive = 0;
@@ -190,6 +191,7 @@
         };
         ParticlePool.prototype.draw = function(context, image, visibility) {
           var i;
+          // draw active particles
           if (firstActive < firstFree) {
             for (i = firstActive; i < firstFree; i++)
               particles[i].draw(context, image, visibility);
@@ -212,12 +214,12 @@
             particles = new ParticlePool(settings.particles.length),
             particleRate = settings.particles.length / settings.particles.duration, // particles/sec
             time,
-            offset = 0,              // giá trị offset theo lựa chọn của người dùng
-            heartVisibility = 0,     // 0: trái tim ẩn, 1: hiện đầy đủ
-            fadeRate = 1,            // tốc độ fade in/out (1 đơn vị/giây)
+            offset = 0, // giá trị offset sẽ được xác định từ lựa chọn của người dùng
+            heartVisibility = 0, // biến kiểm soát độ hiển thị của trái tim (0: ẩn, 1: hiện đầy đủ)
+            fadeRate = 1, // tốc độ fade in/out (đơn vị: 1/giây)
             buttonPressed = false;
 
-        // Yêu cầu người dùng nhập chế độ
+        // Yêu cầu người dùng nhập chế độ khi mới vào trang web
         var mode = prompt("Chọn chế độ:\nNhập 1: trái tim dịch sang bên phải 200px\nNhập 2: trái tim dịch sang bên trái 200px", "1");
         if (mode === "1") {
           offset = 200;
@@ -227,7 +229,7 @@
           offset = 0;
         }
 
-        // Sự kiện cho nút ở góc dưới bên phải
+        // Lắng nghe sự kiện cho nút (bao gồm cả chuột và cảm ứng)
         var toggleButton = document.getElementById('toggleButton');
         toggleButton.addEventListener('mousedown', function() {
           buttonPressed = true;
@@ -243,88 +245,82 @@
           buttonPressed = false;
         });
 
-        // Hàm tính điểm trên đường viền trái tim (ban đầu chưa scale)
+        // get point on heart with -PI <= t <= PI
         function pointOnHeart(t) {
           return new Point(
             160 * Math.pow(Math.sin(t), 3),
-            130 * Math.cos(t) - 50 * Math.cos(2*t) - 20 * Math.cos(3*t) - 10 * Math.cos(4*t) + 25
+            130 * Math.cos(t) - 50 * Math.cos(2 * t) - 20 * Math.cos(3 * t) - 10 * Math.cos(4 * t) + 25
           );
         }
 
-        // Tạo hình ảnh particle của trái tim bằng dummy canvas với kích thước cố định
+        // creating the particle image using a dummy canvas
         var image = (function() {
-          var dummyCanvas = document.createElement('canvas'),
+          var dummyCanvas  = document.createElement('canvas'),
               dummyContext = dummyCanvas.getContext('2d');
-          dummyCanvas.width = settings.heartSize;
-          dummyCanvas.height = settings.heartSize;
+          dummyCanvas.width  = settings.particles.size;
+          dummyCanvas.height = settings.particles.size;
+          // helper function to create the path
           function to(t) {
-            var pt = pointOnHeart(t);
-            pt.x = settings.heartSize/2 + pt.x * heartScaleFactor;
-            pt.y = settings.heartSize/2 - pt.y * heartScaleFactor;
-            return pt;
+            var point = pointOnHeart(t);
+            point.x = settings.particles.size / 2 + point.x * settings.particles.size / 350;
+            point.y = settings.particles.size / 2 - point.y * settings.particles.size / 350;
+            return point;
           }
+          // create the path
           dummyContext.beginPath();
           var t = -Math.PI;
-          var pt = to(t);
-          dummyContext.moveTo(pt.x, pt.y);
-          while(t < Math.PI) {
+          var point = to(t);
+          dummyContext.moveTo(point.x, point.y);
+          while (t < Math.PI) {
             t += 0.01;
-            pt = to(t);
-            dummyContext.lineTo(pt.x, pt.y);
+            point = to(t);
+            dummyContext.lineTo(point.x, point.y);
           }
           dummyContext.closePath();
+          // create the fill
           dummyContext.fillStyle = '#ea80b0';
           dummyContext.fill();
+          // create the image
           var img = new Image();
           img.src = dummyCanvas.toDataURL();
           return img;
         })();
 
-        // Render loop
+        // render that thing!
         function render() {
           requestAnimationFrame(render);
           var newTime   = new Date().getTime() / 1000,
               deltaTime = newTime - (time || newTime);
           time = newTime;
           context.clearRect(0, 0, canvas.width, canvas.height);
-
-          // Cập nhật heartVisibility theo trạng thái nút
-          if(buttonPressed) {
+          // Cập nhật heartVisibility theo trạng thái của nút
+          if(buttonPressed){
             heartVisibility = Math.min(heartVisibility + deltaTime * fadeRate, 1);
           } else {
             heartVisibility = Math.max(heartVisibility - deltaTime * fadeRate, 0);
           }
-
           var amount = particleRate * deltaTime;
           for (var i = 0; i < amount; i++) {
             var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
             var dir = pos.clone().length(settings.particles.velocity);
-            // Scale pos theo heartScaleFactor để kích thước trái tim cố định
-            particles.add(canvas.width/2 + offset + pos.x * heartScaleFactor,
-                          canvas.height/2 - pos.y * heartScaleFactor,
-                          dir.x, -dir.y);
+            // Dịch chuyển particle theo offset dựa trên lựa chọn của người dùng
+            particles.add(canvas.width / 2 + offset + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
           }
           particles.update(deltaTime);
-          if(heartVisibility > 0) {
+          // Chỉ vẽ trái tim với độ hiển thị > 0
+          if(heartVisibility > 0){
             particles.draw(context, image, heartVisibility);
-            // Vẽ chữ "I LOVE Bắp" ở giữa trái tim
-            context.save();
-            context.globalAlpha = heartVisibility;
-            context.font = "bold 24px sans-serif";
-            context.fillStyle = "#ffffff";
-            context.textAlign = "center";
-            context.textBaseline = "middle";
-            context.fillText("I LOVE Bắp", canvas.width/2 + offset, canvas.height/2);
-            context.restore();
           }
         }
 
+        // handle (re-)sizing of the canvas
         function onResize() {
-          canvas.width = canvas.clientWidth;
+          canvas.width  = canvas.clientWidth;
           canvas.height = canvas.clientHeight;
         }
         window.onresize = onResize;
 
+        // delay rendering bootstrap
         setTimeout(function() {
           onResize();
           render();
