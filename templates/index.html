@@ -1,38 +1,28 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Nửa Trái Tim</title>
     <style>
-        /* Định vị phần hiển thị nửa trái tim */
-        .half-heart-container {
-            position: absolute;
-            top: 20px; /* Điều chỉnh khoảng cách từ đầu trang theo nhu cầu */
-            left: 50%;
-            transform: translateX(-50%);
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
         }
-        /* Kích thước SVG */
-        .heart-svg {
+        .heart-container {
             width: 200px;
             height: 200px;
+        }
+        .half-heart {
+            fill: red;
         }
     </style>
 </head>
 <body>
-    <div class="half-heart-container">
-        <svg class="heart-svg" viewBox="0 0 100 100">
-            <defs>
-                <!-- Định nghĩa clip-path cắt lấy nửa trái tim -->
-                <clipPath id="clip-half">
-                    <!-- Cắt lấy nửa trái tim bên trái -->
-                    <rect x="0" y="0" width="50" height="100"/>
-                </clipPath>
-            </defs>
-            <!-- Vẽ hình trái tim đầy đủ -->
-            <path d="M50 15 
-                     C20 15, 20 50, 50 80 
-                     C80 50, 80 15, 50 15 
-                     Z" fill="red" clip-path="url(#clip-half)"/>
+    <div class="heart-container">
+        <svg viewBox="0 0 100 100">
+            <path class="half-heart" d="M 50 10 A 30 30 0 0 1 95 50 L 50 90 L 5 50 A 30 30 0 0 1 50 10 Z" />
         </svg>
     </div>
 </body>
