@@ -1,44 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Trái Tim Đỏ</title>
     <style>
-        /* Tạo nửa trái tim bên trái */
-        .half-heart {
-            position: fixed;
-            top: 50%;
-            left: 20%;
-            width: 50px;
-            height: 50px;
-            transform: rotate(45deg) translate(-50%, -50%);
-            background-color: #ff3366;
-        }
-
-        .half-heart::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: 0;
-            width: 100%;
+        /* Thiết lập chiều cao toàn bộ trang */
+        html, body {
             height: 100%;
-            border-radius: 50% 50% 0 0;
-            background-color: inherit;
+            margin: 0;
         }
-
-        /* Ẩn nửa bên phải */
-        .half-heart::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: -50%;
-            width: 100%;
+        /* Sử dụng Flexbox để căn giữa nội dung */
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             height: 100%;
-            background-color: white;
-            transform: rotate(45deg);
+        }
+        /* Kích thước SVG */
+        .heart-svg {
+            width: 200px;
+            height: 200px;
         }
     </style>
 </head>
 <body>
-    <div class="half-heart"></div>
+    <div class="container">
+        <svg class="heart-svg" viewBox="0 0 100 100">
+            <path d="M50 15 
+                     C20 15, 20 50, 50 80 
+                     C80 50, 80 15, 50 15 
+                     Z" fill="red"/>
+        </svg>
+    </div>
 </body>
 </html>
