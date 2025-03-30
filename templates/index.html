@@ -1,138 +1,39 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Ghép Trái Tim</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-      font-family: Arial, sans-serif;
-      touch-action: manipulation;
-    }
-
-    .container {
-      text-align: center;
-    }
-
-    button {
-      padding: 20px 40px;
-      font-size: 1.5em;
-      background: #fff;
-      border: none;
-      border-radius: 30px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-      cursor: pointer;
-      transition: transform 0.1s;
-    }
-
-    button:active {
-      transform: scale(0.95);
-    }
-
-    .half-heart {
-      font-size: 100px;
-      position: fixed;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    #left-half {
-      left: 10%;
-      transform: rotate(30deg);
-    }
-
-    #right-half {
-      right: 10%;
-      transform: rotate(-30deg);
-    }
-
-    .complete-heart {
-      font-size: 150px;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      opacity: 0;
-      animation: heartbeat 1s ease-in-out;
-    }
-
-    @keyframes heartbeat {
-      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Nửa Trái Tim</title>
+    <style>
+        /* Định vị phần hiển thị nửa trái tim */
+        .half-heart-container {
+            position: absolute;
+            top: 20px; /* Điều chỉnh khoảng cách từ đầu trang theo nhu cầu */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        /* Kích thước SVG */
+        .heart-svg {
+            width: 200px;
+            height: 200px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <button 
-      ontouchstart="handleHold()" 
-      ontouchend="handleRelease()" 
-      onmousedown="handleHold()" 
-      onmouseup="handleRelease()"
-    >
-      Chạm và Giữ
-    </button>
-    <div id="left-half" class="half-heart">💖</div>
-    <div id="right-half" class="half-heart">💖</div>
-    <div id="complete-heart" class="complete-heart">❤️</div>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-  <script>
-    const socket = io();
-    let position = null;
-    let isHolding = false;
-
-    socket.on('position_assigned', (data) => {
-      position = data.position;
-      if (position) {
-        document.getElementById(position + '-half').style.opacity = '0';
-      }
-      console.log("Assigned position:", position);
-    });
-
-    socket.on('show_complete_heart', (data) => {
-      const heart = document.getElementById('complete-heart');
-      heart.style.opacity = '1';
-      setTimeout(() => {
-        heart.style.opacity = '0';
-      }, 1000);
-    });
-
-    socket.on('hide_half_heart', () => {
-      if (position) {
-        document.getElementById(position + '-half').style.opacity = '0';
-      }
-    });
-
-    function handleHold() {
-      if (!isHolding) {
-        isHolding = true;
-        socket.emit('hold');
-        if (position) {
-          document.getElementById(position + '-half').style.opacity = '1';
-        }
-      }
-    }
-
-    function handleRelease() {
-      if (isHolding) {
-        isHolding = false;
-        socket.emit('release');
-      }
-    }
-
-    // Ngăn menu context khi nhấn giữ lâu
-    document.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-    });
-  </script>
+    <div class="half-heart-container">
+        <svg class="heart-svg" viewBox="0 0 100 100">
+            <defs>
+                <!-- Định nghĩa clip-path cắt lấy nửa trái tim -->
+                <clipPath id="clip-half">
+                    <!-- Cắt lấy nửa trái tim bên trái -->
+                    <rect x="0" y="0" width="50" height="100"/>
+                </clipPath>
+            </defs>
+            <!-- Vẽ hình trái tim đầy đủ -->
+            <path d="M50 15 
+                     C20 15, 20 50, 50 80 
+                     C80 50, 80 15, 50 15 
+                     Z" fill="red" clip-path="url(#clip-half)"/>
+        </svg>
+    </div>
 </body>
 </html>
