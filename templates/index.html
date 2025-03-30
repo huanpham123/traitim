@@ -195,10 +195,18 @@
         var context = canvas.getContext('2d'),
             particles = new ParticlePool(settings.particles.length),
             particleRate = settings.particles.length / settings.particles.duration, // particles/sec
-            time;
-        
-        // Đặt offset ngang (pixel) để dịch chuyển trái tim sang bên phải, tăng lên 100 pixel
-        var offset = 200; //ở đâyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+            time,
+            offset = 0; // giá trị offset sẽ được xác định từ lựa chọn của người dùng
+
+        // Yêu cầu người dùng nhập chế độ khi mới vào trang web
+        var mode = prompt("Chọn chế độ:\nNhập 1: trái tim dịch sang bên phải 200px\nNhập 2: trái tim dịch sang bên trái 200px", "1");
+        if (mode === "1") {
+          offset = 200;
+        } else if (mode === "2") {
+          offset = -200;
+        } else {
+          offset = 0;
+        }
 
         // get point on heart with -PI <= t <= PI
         function pointOnHeart(t) {
@@ -252,7 +260,7 @@
           for (var i = 0; i < amount; i++) {
             var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
             var dir = pos.clone().length(settings.particles.velocity);
-            // Dịch chuyển particle sang bên phải thêm offset
+            // Dịch chuyển particle theo offset theo lựa chọn của người dùng
             particles.add(canvas.width / 2 + offset + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
           }
           particles.update(deltaTime);
