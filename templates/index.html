@@ -196,6 +196,9 @@
             particles = new ParticlePool(settings.particles.length),
             particleRate = settings.particles.length / settings.particles.duration, // particles/sec
             time;
+        
+        // Đặt offset ngang (pixel) để dịch chuyển trái tim sang bên phải
+        var offset = 50;
 
         // get point on heart with -PI <= t <= PI
         function pointOnHeart(t) {
@@ -249,8 +252,8 @@
           for (var i = 0; i < amount; i++) {
             var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
             var dir = pos.clone().length(settings.particles.velocity);
-            // đảm bảo particle khởi tạo ở giữa màn hình
-            particles.add(canvas.width / 2 + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
+            // Thêm offset vào trục x để dịch chuyển trái tim sang bên phải
+            particles.add(canvas.width / 2 + offset + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
           }
           particles.update(deltaTime);
           particles.draw(context, image);
