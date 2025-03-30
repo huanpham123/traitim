@@ -1,31 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Nửa Trái Tim</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body {
-            display: flex;
-            justify-content: flex-end; /* Đẩy nội dung sang bên phải */
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f0f0f0;
-            margin: 0; /* Loại bỏ margin mặc định của body */
-        }
-        .heart-container {
-            width: 200px;
-            height: 200px;
-            margin-right: 50px; /* Thêm khoảng cách bên phải nếu cần */
-        }
+        /* Tạo nửa trái tim bên trái */
         .half-heart {
-            fill: red;
+            position: fixed;
+            top: 50%;
+            left: 20%;
+            width: 50px;
+            height: 50px;
+            transform: rotate(45deg) translate(-50%, -50%);
+            background-color: #ff3366;
+        }
+
+        .half-heart::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50% 50% 0 0;
+            background-color: inherit;
+        }
+
+        /* Ẩn nửa bên phải */
+        .half-heart::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            transform: rotate(45deg);
         }
     </style>
 </head>
 <body>
-    <div class="heart-container">
-        <svg viewBox="0 0 100 100">
-            <path class="half-heart" d="M 50 10 A 40 40 0 0 1 50 90 L 10 90 L 10 10 Z" />
-        </svg>
-    </div>
+    <div class="half-heart"></div>
 </body>
 </html>
