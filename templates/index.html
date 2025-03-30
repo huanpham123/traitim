@@ -3,7 +3,7 @@
   <head>
     <title>New Document</title>
     <meta charset="UTF-8">
-    <!-- Meta viewport để đảm bảo trang web hiển thị đúng kích thước trên mọi thiết bị và ngăn phóng to -->
+    <!-- Meta viewport để đảm bảo trang web hiển thị đúng trên mọi thiết bị và ngăn phóng to/thu nhỏ -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="Generator" content="EditPlus">
     <meta name="Author" content="">
@@ -15,7 +15,7 @@
         padding: 0;
         margin: 0;
         background: #000;
-        overflow: hidden; /* ẩn thanh cuộn nếu có */
+        overflow: hidden;
       }
       canvas {
         position: absolute;
@@ -197,8 +197,8 @@
             particleRate = settings.particles.length / settings.particles.duration, // particles/sec
             time;
         
-        // Đặt offset ngang (pixel) để dịch chuyển trái tim sang bên phải
-        var offset = 50;
+        // Đặt offset ngang (pixel) để dịch chuyển trái tim sang bên phải, tăng lên 100 pixel
+        var offset = 100;
 
         // get point on heart with -PI <= t <= PI
         function pointOnHeart(t) {
@@ -227,7 +227,7 @@
           var point = to(t);
           dummyContext.moveTo(point.x, point.y);
           while (t < Math.PI) {
-            t += 0.01; // baby steps!
+            t += 0.01;
             point = to(t);
             dummyContext.lineTo(point.x, point.y);
           }
@@ -252,7 +252,7 @@
           for (var i = 0; i < amount; i++) {
             var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
             var dir = pos.clone().length(settings.particles.velocity);
-            // Thêm offset vào trục x để dịch chuyển trái tim sang bên phải
+            // Dịch chuyển particle sang bên phải thêm offset
             particles.add(canvas.width / 2 + offset + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
           }
           particles.update(deltaTime);
