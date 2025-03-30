@@ -1,135 +1,138 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Ghép Trái Tim</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-            font-family: Arial, sans-serif;
-            touch-action: manipulation;
-        }
+  <meta charset="UTF-8">
+  <title>Ghép Trái Tim</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+      font-family: Arial, sans-serif;
+      touch-action: manipulation;
+    }
 
-        .container {
-            text-align: center;
-        }
+    .container {
+      text-align: center;
+    }
 
-        button {
-            padding: 20px 40px;
-            font-size: 1.5em;
-            background: #fff;
-            border: none;
-            border-radius: 30px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
+    button {
+      padding: 20px 40px;
+      font-size: 1.5em;
+      background: #fff;
+      border: none;
+      border-radius: 30px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
 
-        button:active {
-            transform: scale(0.95);
-        }
+    button:active {
+      transform: scale(0.95);
+    }
 
-        .half-heart {
-            font-size: 100px;
-            position: fixed;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
+    .half-heart {
+      font-size: 100px;
+      position: fixed;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
 
-        #left-half {
-            left: 10%;
-            transform: rotate(30deg);
-        }
+    #left-half {
+      left: 10%;
+      transform: rotate(30deg);
+    }
 
-        #right-half {
-            right: 10%;
-            transform: rotate(-30deg);
-        }
+    #right-half {
+      right: 10%;
+      transform: rotate(-30deg);
+    }
 
-        .complete-heart {
-            font-size: 150px;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 0;
-            animation: heartbeat 1s ease-in-out;
-        }
+    .complete-heart {
+      font-size: 150px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      animation: heartbeat 1s ease-in-out;
+    }
 
-        @keyframes heartbeat {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
-        }
-    </style>
+    @keyframes heartbeat {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <button 
-            ontouchstart="handleHold()" 
-            ontouchend="handleRelease()" 
-            onmousedown="handleHold()" 
-            onmouseup="handleRelease()"
-        >
-            Chạm và Giữ
-        </button>
-        <div id="left-half" class="half-heart">💖</div>
-        <div id="right-half" class="half-heart">💖</div>
-        <div id="complete-heart" class="complete-heart">❤️</div>
-    </div>
+  <div class="container">
+    <button 
+      ontouchstart="handleHold()" 
+      ontouchend="handleRelease()" 
+      onmousedown="handleHold()" 
+      onmouseup="handleRelease()"
+    >
+      Chạm và Giữ
+    </button>
+    <div id="left-half" class="half-heart">💖</div>
+    <div id="right-half" class="half-heart">💖</div>
+    <div id="complete-heart" class="complete-heart">❤️</div>
+  </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <script>
-        const socket = io();
-        let position = null;
-        let isHolding = false;
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let position = null;
+    let isHolding = false;
 
-        socket.on('position_assigned', (data) => {
-            position = data.position;
-            document.getElementById(position + '-half').style.opacity = '0';
-        });
+    socket.on('position_assigned', (data) => {
+      position = data.position;
+      if (position) {
+        document.getElementById(position + '-half').style.opacity = '0';
+      }
+      console.log("Assigned position:", position);
+    });
 
-        socket.on('show_complete_heart', () => {
-            const heart = document.getElementById('complete-heart');
-            heart.style.opacity = '1';
-            setTimeout(() => {
-                heart.style.opacity = '0';
-            }, 1000);
-        });
+    socket.on('show_complete_heart', (data) => {
+      const heart = document.getElementById('complete-heart');
+      heart.style.opacity = '1';
+      setTimeout(() => {
+        heart.style.opacity = '0';
+      }, 1000);
+    });
 
-        socket.on('hide_half_heart', () => {
-            if (position) {
-                document.getElementById(position + '-half').style.opacity = '0';
-            }
-        });
+    socket.on('hide_half_heart', () => {
+      if (position) {
+        document.getElementById(position + '-half').style.opacity = '0';
+      }
+    });
 
-        function handleHold() {
-            if (!isHolding) {
-                isHolding = true;
-                socket.emit('hold');
-                if (position) {
-                    document.getElementById(position + '-half').style.opacity = '1';
-                }
-            }
+    function handleHold() {
+      if (!isHolding) {
+        isHolding = true;
+        socket.emit('hold');
+        if (position) {
+          document.getElementById(position + '-half').style.opacity = '1';
         }
+      }
+    }
 
-        function handleRelease() {
-            if (isHolding) {
-                isHolding = false;
-                socket.emit('release');
-            }
-        }
+    function handleRelease() {
+      if (isHolding) {
+        isHolding = false;
+        socket.emit('release');
+      }
+    }
 
-        // Prevent context menu on long press
-        document.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-        });
-    </script>
+    // Ngăn menu context khi nhấn giữ lâu
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+    });
+  </script>
 </body>
 </html>
