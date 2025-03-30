@@ -5,14 +5,16 @@
     <style>
         body {
             display: flex;
-            justify-content: center;
+            justify-content: flex-end; /* Đẩy nội dung sang bên phải */
             align-items: center;
             min-height: 100vh;
             background-color: #f0f0f0;
+            margin: 0; /* Loại bỏ margin mặc định của body */
         }
         .heart-container {
             width: 200px;
             height: 200px;
+            margin-right: 50px; /* Thêm khoảng cách bên phải nếu cần */
         }
         .half-heart {
             fill: red;
@@ -22,7 +24,7 @@
 <body>
     <div class="heart-container">
         <svg viewBox="0 0 100 100">
-            <path class="half-heart" d="M 50 10 A 30 30 0 0 1 95 50 L 50 90 L 5 50 A 30 30 0 0 1 50 10 Z" />
+            <path class="half-heart" d="M 50 10 A 40 40 0 0 1 50 90 L 10 90 L 10 10 Z" />
         </svg>
     </div>
 </body>
