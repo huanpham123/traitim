@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Ghép Trái Tim</title>
+  <style>
+    /* Background động hiện đại */
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradientAnimation 15s ease infinite;
+      position: relative;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    @keyframes gradientAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+    
+    button {
+      padding: 15px 40px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      background: linear-gradient(45deg, #ff6b6b, #f06595);
+      border: none;
+      border-radius: 30px;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Nửa trái tim hiển thị ở 2 mép màn hình */
+    .half-heart {
+      font-size: 4rem;
+      position: absolute;
+      display: none;
+      opacity: 0;
+      animation: popIn 0.8s forwards, fadeOut 0.8s 0.8s forwards;
+    }
+    
+    #left-heart {
+      left: 5%;
+      top: 40%;
+      transform: translateY(0);
+    }
+    
+    #right-heart {
+      right: 5%;
+      top: 40%;
+      transform: translateY(0);
+    }
+    
+    /* Trái tim hoàn chỉnh với hiệu ứng glow */
+    .complete-heart {
+      font-size: 5rem;
+      display: none;
+      margin-top: 20px;
+      animation: popIn 0.8s forwards, glow 2s infinite alternate;
+    }
+    
+    @keyframes popIn {
+      0% {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+      }
+    }
+    
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 10px #fff, 0 0 20px #ff6b6b;
+      }
+      to {
+        text-shadow: 0 0 20px #fff, 0 0 30px #f06595;
+      }
+    }
+    
+    /* Footer creator info */
+    .owner {
+      position: fixed;
+      bottom: 5px;
+      right: 10px;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.7);
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+</head>
+<body>
+  <h1>Ghép Trái Tim</h1>
+  <p>Đưa 2 đầu của điện thoại lại gần nhau, sau đó cùng nhấn giữ nút bên dưới cùng lúc!</p>
+  <button onclick="sendHalfHeart()">Nhấn Giữ</button>
+  
+  <!-- Nửa trái tim hiển thị ở 2 bên màn hình -->
+  <div id="left-heart" class="half-heart">💖</div>
+  <div id="right-heart" class="half-heart">💖</div>
+  
+  <!-- Hiệu ứng trái tim hoàn chỉnh -->
+  <div id="complete-heart" class="complete-heart">❤️</div>
+  
+  <div class="owner">Created by: Mohammad Samad</div>
+
+  <script>
+    var socket = io();
+
+    function sendHalfHeart() {
+      // Khi người dùng nhấn giữ, gửi tín hiệu "half_heart" đến server
+      socket.emit('half_heart', { message: 'half heart pressed' });
+      
+      // Hiển thị nửa trái tim trên giao diện tạm thời (chọn ngẫu nhiên bên trái hoặc bên phải)
+      var side = Math.random() < 0.5 ? 'left' : 'right';
+      if (side === 'left') {
+        var leftHeart = document.getElementById('left-heart');
+        leftHeart.style.display = 'block';
+        leftHeart.style.animation = 'popIn 0.8s forwards, fadeOut 0.8s 0.8s forwards';
+      } else {
+        var rightHeart = document.getElementById('right-heart');
+        rightHeart.style.display = 'block';
+        rightHeart.style.animation = 'popIn 0.8s forwards, fadeOut 0.8s 0.8s forwards';
+      }
+      
+      // Ẩn nửa trái tim sau 1.7 giây (nếu không nhận được ghép song song)
+      setTimeout(function() {
+        document.getElementById('left-heart').style.display = 'none';
+        document.getElementById('right-heart').style.display = 'none';
+      }, 1700);
+    }
+
+    // Khi nhận được sự kiện "complete_heart" từ server, hiển thị trái tim hoàn chỉnh
+    socket.on('complete_heart', function(data) {
+      var completeDiv = document.getElementById('complete-heart');
+      completeDiv.style.display = 'block';
+      setTimeout(function() {
+        completeDiv.style.display = 'none';
+      }, 3000);
+    });
+  </script>
+</body>
+</html>
