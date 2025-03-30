@@ -22,10 +22,27 @@
         width: 100%;
         height: 100%;
       }
+      /* Nút ở góc dưới bên phải, không ghi gì */
+      #toggleButton {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        width: 50px;
+        height: 50px;
+        background: rgba(255,255,255,0.3);
+        border: none;
+        border-radius: 50%;
+        z-index: 10;
+      }
+      /* Ẩn outline khi nhấn nút */
+      #toggleButton:focus {
+        outline: none;
+      }
     </style>
   </head>
   <body>
     <canvas id="pinkboard"></canvas>
+    <button id="toggleButton"></button>
     <script>
       /*
        * Settings
@@ -118,12 +135,13 @@
           this.velocity.y += this.acceleration.y * deltaTime;
           this.age += deltaTime;
         };
-        Particle.prototype.draw = function(context, image) {
+        Particle.prototype.draw = function(context, image, visibility) {
           function ease(t) {
             return (--t) * t * t + 1;
           }
           var size = image.width * ease(this.age / settings.particles.duration);
-          context.globalAlpha = 1 - this.age / settings.particles.duration;
+          // Nhân alpha của từng particle với biến visibility để tạo hiệu ứng fade in/out
+          context.globalAlpha = (1 - this.age / settings.particles.duration) * visibility;
           context.drawImage(image, this.position.x - size / 2, this.position.y - size / 2, size, size);
         };
         return Particle;
@@ -171,18 +189,18 @@
             if (firstActive == particles.length) firstActive = 0;
           }
         };
-        ParticlePool.prototype.draw = function(context, image) {
+        ParticlePool.prototype.draw = function(context, image, visibility) {
           var i;
           // draw active particles
           if (firstActive < firstFree) {
             for (i = firstActive; i < firstFree; i++)
-              particles[i].draw(context, image);
+              particles[i].draw(context, image, visibility);
           }
           if (firstFree < firstActive) {
             for (i = firstActive; i < particles.length; i++)
-              particles[i].draw(context, image);
+              particles[i].draw(context, image, visibility);
             for (i = 0; i < firstFree; i++)
-              particles[i].draw(context, image);
+              particles[i].draw(context, image, visibility);
           }
         };
         return ParticlePool;
@@ -196,7 +214,10 @@
             particles = new ParticlePool(settings.particles.length),
             particleRate = settings.particles.length / settings.particles.duration, // particles/sec
             time,
-            offset = 0; // giá trị offset sẽ được xác định từ lựa chọn của người dùng
+            offset = 0, // giá trị offset sẽ được xác định từ lựa chọn của người dùng
+            heartVisibility = 0, // biến kiểm soát độ hiển thị của trái tim (0: ẩn, 1: hiện đầy đủ)
+            fadeRate = 1, // tốc độ fade in/out (đơn vị: 1/giây)
+            buttonPressed = false;
 
         // Yêu cầu người dùng nhập chế độ khi mới vào trang web
         var mode = prompt("Chọn chế độ:\nNhập 1: trái tim dịch sang bên phải 200px\nNhập 2: trái tim dịch sang bên trái 200px", "1");
@@ -207,6 +228,22 @@
         } else {
           offset = 0;
         }
+
+        // Lắng nghe sự kiện cho nút (bao gồm cả chuột và cảm ứng)
+        var toggleButton = document.getElementById('toggleButton');
+        toggleButton.addEventListener('mousedown', function() {
+          buttonPressed = true;
+        });
+        toggleButton.addEventListener('mouseup', function() {
+          buttonPressed = false;
+        });
+        toggleButton.addEventListener('touchstart', function(e) {
+          buttonPressed = true;
+          e.preventDefault();
+        });
+        toggleButton.addEventListener('touchend', function() {
+          buttonPressed = false;
+        });
 
         // get point on heart with -PI <= t <= PI
         function pointOnHeart(t) {
@@ -256,15 +293,24 @@
               deltaTime = newTime - (time || newTime);
           time = newTime;
           context.clearRect(0, 0, canvas.width, canvas.height);
+          // Cập nhật heartVisibility theo trạng thái của nút
+          if(buttonPressed){
+            heartVisibility = Math.min(heartVisibility + deltaTime * fadeRate, 1);
+          } else {
+            heartVisibility = Math.max(heartVisibility - deltaTime * fadeRate, 0);
+          }
           var amount = particleRate * deltaTime;
           for (var i = 0; i < amount; i++) {
             var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
             var dir = pos.clone().length(settings.particles.velocity);
-            // Dịch chuyển particle theo offset theo lựa chọn của người dùng
+            // Dịch chuyển particle theo offset dựa trên lựa chọn của người dùng
             particles.add(canvas.width / 2 + offset + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
           }
           particles.update(deltaTime);
-          particles.draw(context, image);
+          // Chỉ vẽ trái tim với độ hiển thị > 0
+          if(heartVisibility > 0){
+            particles.draw(context, image, heartVisibility);
+          }
         }
 
         // handle (re-)sizing of the canvas
